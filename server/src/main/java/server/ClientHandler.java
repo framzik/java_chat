@@ -80,7 +80,6 @@ public class ClientHandler {
                 sendMsg(Command.REG_NO);
               }
             }
-
           }
           //цикл работы
           while (true) {
@@ -98,6 +97,23 @@ public class ClientHandler {
                   continue;
                 }
                 server.privateMsg(this, token[1], token[2]);
+              }
+
+              //если команда обновить никнейм
+              if (str.startsWith(Command.UPD_NICKNAME)) {
+                String[] token = str.split("\\s", 2);
+                if (token.length < 2) {
+                  continue;
+                }
+                boolean updNickNameSuccess = server.getAuthService().updNicName(token[1], login);
+                if (updNickNameSuccess) {
+                  server.unsubscribe(this);
+                  nickname = token[1];
+                  server.subscribe(this);
+                  sendMsg(Command.UPD_OK);
+                } else {
+                  sendMsg(Command.UPD_NO);
+                }
               }
             } else {
               server.broadcastMsg(this, str);

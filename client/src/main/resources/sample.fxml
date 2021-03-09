@@ -27,6 +27,7 @@
 
 
     <HBox fx:id="msgPanel" visible="false" managed="false">
+        <Button text="ChangeNick" onAction="#showUpdNickWindow"/>
         <TextField fx:id="textField" HBox.hgrow="ALWAYS" promptText="input text" onAction="#sendMsg"/>
         <Button text="send" onAction="#sendMsg"/>
     </HBox>

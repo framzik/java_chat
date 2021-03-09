@@ -9,5 +9,9 @@ public class Command {
     public static final String REG = "/reg";
     public static final String REG_OK = "/regok";
     public static final String REG_NO = "/regno";
+    public static final String UPD_NICKNAME = "/upd";
+    public static final String UPD_OK = "/updok";
+    public static final String UPD_NO = "/updno";
+
 
 }

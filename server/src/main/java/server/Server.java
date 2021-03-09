@@ -23,7 +23,7 @@ public class Server {
 
   public Server() {
     clients = new CopyOnWriteArrayList<>();
-    authService = new SimpleAuthService();
+    authService = new DbAuthService();
 
     try {
       server = new ServerSocket(PORT);
@@ -39,6 +39,7 @@ public class Server {
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
+      authService.disconnect();
       try {
         socket.close();
       } catch (IOException e) {
@@ -82,6 +83,11 @@ public class Server {
     clients.remove(clientHandler);
     broadcastClientList();
   }
+
+  public void updateNickName(String nickname){
+
+  }
+
 
   public AuthService getAuthService() {
     return authService;
