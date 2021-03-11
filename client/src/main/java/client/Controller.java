@@ -1,6 +1,20 @@
 package client;
 
 import commands.Command;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,6 +59,9 @@ public class Controller implements Initializable {
   private Socket socket;
   private DataInputStream in;
   private DataOutputStream out;
+  private FileWriter fileWriter;
+  //private FileWriter fileWriterAllChat;
+
   private final int PORT = 8189;
   private final String IP_ADDRESS = "localhost";
 
@@ -110,6 +127,9 @@ public class Controller implements Initializable {
                 String[] token = str.split("\\s");
                 nickname = token[1];
                 setAuthenticated(true);
+                fileWriter = initialFw();
+                //fileWriterAllChat = initialFwAllChat();
+                printHistory();
                 break;
               }
 
@@ -123,7 +143,9 @@ public class Controller implements Initializable {
 
 
             } else {
-              textArea.appendText(str + "\n");
+              String msg = str + "\n";
+              textArea.appendText(msg);
+              fileWriter.write(msg);
             }
           }
           //цикл работы
@@ -153,7 +175,10 @@ public class Controller implements Initializable {
               }
 
             } else {
-              textArea.appendText(str + "\n");
+              String msg = str + "\n";
+              textArea.appendText(msg);
+              fileWriter.write(msg);
+              //fileWriterAllChat.write(msg);
             }
           }
         } catch (RuntimeException e) {
@@ -163,6 +188,8 @@ public class Controller implements Initializable {
         } finally {
           setAuthenticated(false);
           try {
+            fileWriter.close();
+            //fileWriterAllChat.close();
             socket.close();
           } catch (IOException e) {
             e.printStackTrace();
@@ -289,4 +316,59 @@ public class Controller implements Initializable {
       e.printStackTrace();
     }
   }
+
+  public FileWriter initialFw() throws IOException {
+    if (fileWriter == null) {
+      fileWriter = new FileWriter(String.format("client/chats/history_%s.txt", nickname), true);
+    }
+    return fileWriter;
+  }
+
+  public void printHistory() {
+    try {
+      List<String> messages = Files
+          .readAllLines(new File(String.format("client/chats/history_%s.txt", nickname)).toPath(),
+              StandardCharsets.UTF_8);
+      if (messages.size() > 100) {
+        messages.stream().skip(messages.size() - 100)
+            .forEach(element -> textArea.appendText(element + "\n"));
+      } else {
+        messages
+            .forEach(element -> textArea.appendText(element + "\n"));
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+//  public void printMessage(String msg) throws IOException {
+//    fileWriterAllChat.write(msg);
+//
+//  }
+//  public FileWriter initialFwAllChat() throws IOException {
+//    if (fileWriterAllChat == null) {
+//      fileWriterAllChat = new FileWriter("client/chats/allChat.txt", true);
+//    }
+//    return fileWriterAllChat;
+//  }
+//
+//  public void printHistory() throws IOException {
+//    File allChat = new File("client/chats/allChat.txt");
+//    List<String> messages = Files
+//        .readAllLines(allChat.toPath(),
+//            StandardCharsets.UTF_8);
+//    Set<String> lines = new LinkedHashSet<>(messages);
+//    if (lines.size() > 100) {
+//       lines =  lines.stream().limit(100).collect(Collectors.toSet());
+//  }
+//      Iterator<String> iterator = lines.iterator();
+//      while (iterator.hasNext()) {
+//        String element = iterator.next();
+//        textArea.appendText(element + "\n");
+//    }
+//  }
 }
+
+
+
