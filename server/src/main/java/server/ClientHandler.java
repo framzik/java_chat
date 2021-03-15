@@ -24,7 +24,12 @@ public class ClientHandler {
       this.socket = socket;
       in = new DataInputStream(socket.getInputStream());
       out = new DataOutputStream(socket.getOutputStream());
-
+      /*
+        Решил не менять управление потоками через ExecutorService, т.к.
+        1. Я ленивый
+        2. У нас создается всего лишь 1 дополнительный поток(кроме основного), а значит нет смысла использовать
+        ExecutorService, который так же будет создавть 1 поток, и закрывать его.
+      */
       new Thread(() -> {
         try {
           // установка сокет тайм аут
